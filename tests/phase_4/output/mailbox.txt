@@ -1,0 +1,10 @@
+Created MSG: (1): [Message 1 - tid 1] [length=17]
+Created MSG: (1): [Another Message - tid 1] [length=23]
+Created MSG: (2): [Message 1 - tid 2] [length=17]
+Created MSG: (2): [Another Message - tid 2] [length=23]
+MBox Message: [Message 1 - tid 1], length=17
+MBox Message: [Another Message - tid 1], length=23
+MBox Message: [Message 1 - tid 2], length=17
+MBox Message: [Another Message - tid 2], length=23
+There are no messages to withdraw from the mailbox
+Done with mailbox test...
