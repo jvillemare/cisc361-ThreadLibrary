@@ -15,7 +15,7 @@ struct ready {
 
 struct tcb {
 	int thread_id;
-  int thread_priority;
+  	int thread_priority;
 	ucontext_t *thread_context;
 };
 
@@ -28,23 +28,28 @@ struct tcb {
  *  runing on the head of the ready queue
  */
 void t_yield() {
-	addToReady(running);
-	addToRunning();
-	// printReadyQueue();
-	// printRunningQueue();
+	if(head){
+		ucontext_t * tmpRun = running->thread_context;
+		ucontext_t * tmpReady = head->thread->thread_context;
 
-	// printf("head of ready ID %d\n", head->thread->thread_id);
-	// printf("runnign ID %d\n", running->thread_id);
-	swapcontext(head->thread->thread_context, running->thread_context);
+		// struct tcb * tmp = running;
+		addToReady(running);
+		addToRunning();
+
+		swapcontext(tmpRun, tmpReady);
+	
+	}
+	
+	
 }
 
 // sets tup the running and ready queue
 void t_init() {
+	struct ready * ready = (struct ready *) malloc(sizeof(struct ready)); 
+
 	ucontext_t *tmp;
 	tmp = (ucontext_t *) malloc(sizeof(ucontext_t));
-
 	getcontext(tmp);    /* let tmp be the context of main() */
-	struct ready * ready = (struct ready *) malloc(sizeof(struct ready)); 
 	struct tcb * tcb = (struct tcb *) malloc(sizeof(struct tcb)); 
 	tcb->thread_context = tmp;
 	tcb->thread_id = 1;
@@ -117,18 +122,21 @@ void addToRunning() {
 }
 
 void t_shutdown(void){
-	
 
-	
 }
 
 void t_terminate(void){
-	free(running);
-	running = NULL;
-	struct ready * tmp = head;
-    head = head->next;
-    running = tmp->thread;
-	swapcontext(head->thread->thread_context, running->thread_context);
+	
+	ucontext_t * tmpRun = running->thread_context;
+	ucontext_t * tmpReady = head->thread->thread_context;
+
+	// free(running);
+	// struct tcb * tmp = running;
+	addToRunning();
+	
+	swapcontext(tmpRun, tmpReady);
+
+
 }
 
 void printReadyQueue(){
