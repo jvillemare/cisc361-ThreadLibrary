@@ -30,6 +30,11 @@ struct tcb {
 void t_yield() {
 	addToReady(running);
 	addToRunning();
+	// printReadyQueue();
+	// printRunningQueue();
+
+	// printf("head of ready ID %d\n", head->thread->thread_id);
+	// printf("runnign ID %d\n", running->thread_id);
 	swapcontext(head->thread->thread_context, running->thread_context);
 }
 
@@ -75,12 +80,8 @@ int t_create(void (*fct)(int), int id, int pri) {
 	tcb->thread_context = uc;
 	tcb->thread_id = id;
 	tcb->thread_priority = pri;
-
-	if(!running)
-		addToRunning(tcb);
-	else 
-		addToReady(tcb);
-	}
+	addToReady(tcb);
+}
 
 /**
  * adds a tcb to the end of the running queue. If the queue is empty
@@ -108,19 +109,26 @@ void addToReady(struct tcb * thread) {
     *indirect = new;
 }
 
-void t_shutdown(void){
 
+void addToRunning() {
+    struct ready * tmp = head;
+    head = head->next;
+    running = tmp->thread;
 }
-void t_terminate(void){
+
+void t_shutdown(void){
+	
+
 	
 }
 
-
-
-void addToRunning() {
-      struct ready * tmp = head;
-      head = head->next;
-      running = tmp->thread;
+void t_terminate(void){
+	free(running);
+	running = NULL;
+	struct ready * tmp = head;
+    head = head->next;
+    running = tmp->thread;
+	swapcontext(head->thread->thread_context, running->thread_context);
 }
 
 void printReadyQueue(){

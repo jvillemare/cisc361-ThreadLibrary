@@ -17,20 +17,15 @@ void assign(int pri)
 
   for (i = 20; i < 23; i++)
     printf("in assign(3): %d\n", i);
+  
+  t_yield();
 }
 
 int main(int argc, char **argv) 
 {
-  
   t_init();
-  t_create(assign, 2, 1);
-  t_create(assign, 3, 1);
-  t_create(assign, 3, 1);
-  t_create(assign, 3, 1);
-  
- 
+  t_create(assign, 1, 1);
 
-  
   printf("in main(): 0\n");
 
   t_yield();

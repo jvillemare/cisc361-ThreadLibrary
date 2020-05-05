@@ -21,9 +21,9 @@ void my_thread(int thr_id) {
     t_yield();
   }
 
-  printf("Thread id:%d\tterminating\n", thr_id);
-  t_terminate();
-  printf("Thread id:%d\tERROR: After terminate\n");
+  // printf("Thread id:%d\tterminating\n", thr_id);
+  // t_terminate();
+  // printf("Thread id:%d\tERROR: After terminate\n");
 }
 
 int main(void){
@@ -44,6 +44,9 @@ int main(void){
     t_create(my_thread, thread_i, 1);
   }
 
+  printRunningQueue();
+  printReadyQueue();
+
   // yield NUM_ITERATIONS times
   printf("---------------------------------------------------\n");
   printf("%d threads created, about to yield...\n", NUM_THREADS);
@@ -53,44 +56,45 @@ int main(void){
     t_yield();
   }
 
-  // yield once more so each thread terminates
+
+  // // yield once more so each thread terminates
   printf("---------------------------------------------------\n");
   printf("Threads about to terminate...\n");
   t_yield();
 
-  // yield again to check robustness of yield function
-  // there are no other threads at this point so yield
-  // should keep this thread running
+  // // yield again to check robustness of yield function
+  // // there are no other threads at this point so yield
+  // // should keep this thread running
   printf("---------------------------------------------------\n");
   printf("Call yield() in main (no other threads to run)\n");
   t_yield();
   printf("After yield() in main\n");
 
-  // build up some more threads
-  printf("---------------------------------------------------\n");
-  printf("About to make %d threads...\n", NUM_THREADS);
-  for ( ; thread_i < (NUM_THREADS*2)+1; thread_i++) {
-    printf("main creating thread id:%d\n", thread_i);
-    t_create(my_thread, thread_i, 1);
-  }
+  // // build up some more threads
+  // printf("---------------------------------------------------\n");
+  // printf("About to make %d threads...\n", NUM_THREADS);
+  // for ( ; thread_i < (NUM_THREADS*2)+1; thread_i++) {
+  //   printf("main creating thread id:%d\n", thread_i);
+  //   t_create(my_thread, thread_i, 1);
+  // }
 
-  // test t_shutdown
-  printf("---------------------------------------------------\n");
-  printf("About to invoke t_shutdown()\n");
-  t_shutdown();
-  printf("After t_shutdown()\n");
+  // // test t_shutdown
+  // printf("---------------------------------------------------\n");
+  // printf("About to invoke t_shutdown()\n");
+  // t_shutdown();
+  // printf("After t_shutdown()\n");
 
-  // yield again to check robustness of yield function
-  // there are no other threads at this point so yield
-  // should keep this thread running
-  printf("---------------------------------------------------\n");
-  printf("Call yield() in main (no other threads to run)\n");
-  t_yield();
-  printf("After yield() in main\n");
+  // // yield again to check robustness of yield function
+  // // there are no other threads at this point so yield
+  // // should keep this thread running
+  // printf("---------------------------------------------------\n");
+  // printf("Call yield() in main (no other threads to run)\n");
+  // t_yield();
+  // printf("After yield() in main\n");
 
-  // end of the test
-  printf("---------------------------------------------------\n");
-  printf("TEST COMPLETE\n");
+  // // end of the test
+  // printf("---------------------------------------------------\n");
+  // printf("TEST COMPLETE\n");
 
   return 0;
 }
