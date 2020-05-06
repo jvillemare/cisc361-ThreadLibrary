@@ -1,18 +1,25 @@
 #include "t_lib.h"
 
 
-//ucontext_t *running; --- not sure if we are using this one 
 
-// running thread 
+/**
+ *  Pointer to the running thread.
+ */
 struct tcb *running;
 
-// Ready Queue for threads 
+
+/**
+ * Linked list that holds the ready queue
+ */ 
 struct ready { 
 	struct tcb * thread;
 	struct tcb * next;
 }* head;
 
 
+/**
+ *  Thread Control Block i.e. node for the ready list 
+ */
 struct tcb {
 	int thread_id;
   	int thread_priority;
@@ -22,34 +29,31 @@ struct tcb {
 
 
 /**
- * todo: switch the tcb from the running and ready queue
- * 
  *  need to call addToReady on the old running thread and addTo
  *  runing on the head of the ready queue
  */
 void t_yield() {
 	if(head){
 		ucontext_t * tmpRun = running->thread_context;
-		ucontext_t * tmpReady = head->thread->thread_context;
+		ucontext_t * tmpReady = head->thread->thread_context; 
 
-		// struct tcb * tmp = running;
 		addToReady(running);
 		addToRunning();
-
 		swapcontext(tmpRun, tmpReady);
-	
-	}
-	
-	
+	}	
 }
 
-// sets tup the running and ready queue
+/**
+ * Initilizaed the ready quene and makes the main thread. Once the main
+ * thread is created it is added to the running queue. Allocated memory 
+ * for the main thread
+ */
 void t_init() {
 	struct ready * ready = (struct ready *) malloc(sizeof(struct ready)); 
 
 	ucontext_t *tmp;
 	tmp = (ucontext_t *) malloc(sizeof(ucontext_t));
-	getcontext(tmp);    /* let tmp be the context of main() */
+	getcontext(tmp); 
 	struct tcb * tcb = (struct tcb *) malloc(sizeof(struct tcb)); 
 	tcb->thread_context = tmp;
 	tcb->thread_id = 1;
@@ -60,25 +64,24 @@ void t_init() {
 }
 
 
-// todo: craete a new tcb and then call addToRunning with the new TCB 
+/**
+ *  Creates a new thread and adds it to the ready queue. Allocates
+ * memory for the new thread
+ * 
+ * @param fct entry function for the new thread
+ * @param id the id of the the thread
+ * @param pri the priority of the thread 
+ * 
+ */
 int t_create(void (*fct)(int), int id, int pri) {
 	size_t sz = 0x10000;
 
 	ucontext_t *uc;
 	uc = (ucontext_t *) malloc(sizeof(ucontext_t));
-
-
-
 	getcontext(uc);
-	/***
-	 uc->uc_stack.ss_sp = mmap(0, sz,
-		PROT_READ | PROT_WRITE | PROT_EXEC,
-		MAP_PRIVATE | MAP_ANON, -1, 0);
-	***/
-	uc->uc_stack.ss_sp = malloc(sz);  /* new statement */
+	uc->uc_stack.ss_sp = malloc(sz);  
 	uc->uc_stack.ss_size = sz;
-	uc->uc_stack.ss_flags = 0;
-	//uc->uc_link = running; 
+	uc->uc_stack.ss_flags = 0; 
 	makecontext(uc, (void (*)(void)) fct, 1, id);
 
 	struct tcb * tcb = (struct tcb *) malloc(sizeof(struct tcb)); 
@@ -89,13 +92,13 @@ int t_create(void (*fct)(int), int id, int pri) {
 }
 
 /**
- * adds a tcb to the end of the running queue. If the queue is empty
+ * adds a tcb to the end of the ready queue. If the queue is empty
  * adds the tcb to the head of the list 
  * 
  * call when you are creating a new thread
  * or when you yield
  * 
- * @param: thread control block 
+ * @param thread thread control block 
  */
 void addToReady(struct tcb * thread) {
     struct ready *temp, *new;
@@ -115,6 +118,10 @@ void addToReady(struct tcb * thread) {
 }
 
 
+/**
+ *  add the head of the ready queue to the running queue and sets 
+ * head to the next node in the ready list
+ */
 void addToRunning() {
     struct ready * tmp = head;
     head = head->next;
@@ -122,21 +129,32 @@ void addToRunning() {
 }
 
 void t_shutdown(void){
+	free(running);
 
+	struct ready * tmp = head;
+	while(tmp){
+		struct ready * t2 = tmp->next;
+		free(tmp->thread->thread_context);
+		free(tmp);
+		tmp = t2;
+	}
 }
 
+
+/**
+ *  removes a thread from the process 
+ */ 
 void t_terminate(void){
 	
 	ucontext_t * tmpRun = running->thread_context;
 	ucontext_t * tmpReady = head->thread->thread_context;
 
+	// need to free properly
+	// free(running->thread_context);
 	// free(running);
-	// struct tcb * tmp = running;
+
 	addToRunning();
-	
 	swapcontext(tmpRun, tmpReady);
-
-
 }
 
 void printReadyQueue(){
