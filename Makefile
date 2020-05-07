@@ -48,4 +48,4 @@ test01x: test01x.o t_lib.a Makefile
 	
 
 clean:
-	rm -f t_lib.a ${EXECS} ${LIBOBJS} ${TSTOBJS} 
+	rm -f t_lib.a ${EXECS} ${LIBOBJS} ${TSTOBJS} test01x test01x.o test01 test01.o
