@@ -26,7 +26,22 @@ struct tcb {
 	ucontext_t *thread_context;
 };
 
+/**
+ *  Semephore
+ * 
+ */
+struct sem_t{
+	int count;
+    struct tcb *q;
+};
 
+
+
+///////////////////////////////////////////////////
+//												 //
+//					Phase 1						 //
+//												 //
+///////////////////////////////////////////////////
 
 /**
  *  need to call addToReady on the old running thread and addTo
@@ -36,7 +51,6 @@ void t_yield() {
 	if(head){
 		ucontext_t * tmpRun = running->thread_context;
 		ucontext_t * tmpReady = head->thread->thread_context; 
-
 		addToReady(running);
 		addToRunning();
 		swapcontext(tmpRun, tmpReady);
@@ -145,17 +159,16 @@ void t_shutdown(void){
  *  removes a thread from the process 
  */ 
 void t_terminate(void){
-	
 	ucontext_t * tmpRun = running->thread_context;
 	ucontext_t * tmpReady = head->thread->thread_context;
-
-	// need to free properly
-	// free(running->thread_context);
-	// free(running);
-
+	
 	addToRunning();
-	swapcontext(tmpRun, tmpReady);
+	
+	if(tmpRun && tmpReady)
+		swapcontext(tmpRun, tmpReady);
+	
 }
+
 
 void printReadyQueue(){
 
@@ -170,4 +183,48 @@ void printReadyQueue(){
 
 void printRunningQueue(){
 	printf("print running queue \n%d \n", running->thread_id);
+}
+
+///////////////////////////////////////////////////
+//												 //
+//					Phase 3						 //
+//												 //
+///////////////////////////////////////////////////
+
+/**
+ * Create a new semaphore pointed to by sp with a count value of sem_count. 
+ * '
+ * @param sp holds the address of the new semeaphore
+ * @param sem_count the count value of the new semaphore
+ * 
+ * @return value of sem_count 
+ */
+int sem_init(struct sem_t **sp, int sem_count){
+	return sem_count;
+}
+
+
+/**
+ * Current thread does a wait (P) on the specified semaphore.
+ * 
+ * @param sp the tread that does the P opperation 
+ */
+void sem_wait(struct sem_t *sp){
+
+}
+
+/**
+ * Current thread does a signal (V) on the specified semaphore.
+ * 
+ * @param sp the tread the does the V opperation
+ */
+void sem_signal(struct sem_t *sp){
+
+}
+
+/**
+ *  Destroy (free) any state related to specified semaphore
+ */
+void sem_destroy(struct sem_t **sp){
+
 }
