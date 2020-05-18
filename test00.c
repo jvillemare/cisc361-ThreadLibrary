@@ -1,6 +1,8 @@
 #include "ud_thread.h"
 #include <stdio.h>
 
+sem_t *s;
+
 void assign(int pri)
 {
   int i;
@@ -23,8 +25,14 @@ void assign(int pri)
 
 int main(int argc, char **argv) 
 {
+  printf("doign nothing \n");
   t_init();
-  t_create(assign, 2, 1);
+  sem_init(&s, 5);
+  
+  sem_wait(s);
+  sem_signal(s);
+
+  t_create(assign, 1, 1);
 
   printf("in main(): 0\n");
 
@@ -37,6 +45,8 @@ int main(int argc, char **argv)
   t_yield();
 
   printf("done...\n");
+
+  sem_destroy(&s);
 
   return (0);
 }

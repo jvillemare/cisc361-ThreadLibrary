@@ -32,7 +32,7 @@ struct tcb {
  */
 struct sem_t{
 	int count;
-    struct tcb *q;
+    struct ready *q;
 };
 
 
@@ -200,6 +200,9 @@ void printRunningQueue(){
  * @return value of sem_count 
  */
 int sem_init(struct sem_t **sp, int sem_count){
+	struct sem_t * new = (struct sem_t *)malloc(sizeof(struct sem_t));
+	new->count = sem_count;
+	* sp = new; 
 	return sem_count;
 }
 
@@ -210,7 +213,35 @@ int sem_init(struct sem_t **sp, int sem_count){
  * @param sp the tread that does the P opperation 
  */
 void sem_wait(struct sem_t *sp){
+	sp->count --;
+	if(sp->count < 0 ){
+		ucontext_t * tmpRun = running->thread_context;
+		ucontext_t * tmpReady = head->thread->thread_context; 
+		struct ready * temp = head->next;
+		
+		addToSemQueue(running);
+		running = head;
+		head = temp;
 
+		swapcontext(tmpRun, tmpReady);
+	}
+}
+
+int addToSemQueue( struct tcb * thread){
+	struct ready *temp, *new;
+    struct ready ** indirect = &sp->q;
+
+    temp = sp->q;
+
+    while((temp != NULL)){
+        indirect = &temp->next;
+        temp = temp->next;
+    }
+
+    new = (struct tcb *)malloc(sizeof(struct tcb));
+    new->thread = thread;
+
+    *indirect = new;
 }
 
 /**
@@ -219,12 +250,21 @@ void sem_wait(struct sem_t *sp){
  * @param sp the tread the does the V opperation
  */
 void sem_signal(struct sem_t *sp){
+	sp->count ++;
+	if(sp->q != NULL){
+		ucontext_t * tmpRun = running->thread_context;
+		ucontext_t * tmpReady = head->thread->thread_context; 
+		addToReady(sp->q->thread);
+		addToRunning(head);
+		sp->q = NULL;
+		swapcontext(tmpRun, tmpReady);
 
+	}
 }
 
 /**
  *  Destroy (free) any state related to specified semaphore
  */
 void sem_destroy(struct sem_t **sp){
-
+	free(*sp);
 }

@@ -45,6 +45,12 @@ test01x.o: test01x.c ud_thread.h Makefile
 
 test01x: test01x.o t_lib.a Makefile
 	${CC} ${CFLAGS} test01x.o t_lib.a -o test01x
+
+test10.o: test10.c ud_thread.h Makefile
+	${CC} ${CFLAGS} -c test10.c
+
+test10: test10.o t_lib.a Makefile
+	${CC} ${CFLAGS} test10.o t_lib.a -o test10
 	
 
 clean:
