@@ -24,6 +24,7 @@ struct tcb {
 	int thread_id;
   	int thread_priority;
 	ucontext_t *thread_context;
+	struct tcb * next;
 };
 
 /**
@@ -32,7 +33,7 @@ struct tcb {
  */
 struct sem_t{
 	int count;
-    struct ready *q;
+    struct tcb *q;
 };
 
 
@@ -53,6 +54,7 @@ void t_yield() {
 		ucontext_t * tmpReady = head->thread->thread_context; 
 		addToReady(running);
 		addToRunning();
+		
 		swapcontext(tmpRun, tmpReady);
 	}	
 }
@@ -213,23 +215,26 @@ int sem_init(struct sem_t **sp, int sem_count){
  * @param sp the tread that does the P opperation 
  */
 void sem_wait(struct sem_t *sp){
+	
 	sp->count --;
 	if(sp->count < 0 ){
 		ucontext_t * tmpRun = running->thread_context;
 		ucontext_t * tmpReady = head->thread->thread_context; 
 		struct ready * temp = head->next;
 		
-		addToSemQueue(running);
+		addToSemQueue(running, sp);
 		running = head;
 		head = temp;
-
-		swapcontext(tmpRun, tmpReady);
+		if(!tmpRun || !tmpReady){
+			swapcontext(tmpRun, tmpReady);
+		}
+	
 	}
 }
 
-int addToSemQueue( struct tcb * thread){
-	struct ready *temp, *new;
-    struct ready ** indirect = &sp->q;
+int addToSemQueue( struct tcb * thread,struct sem_t *sp){
+	struct tcb *temp, *new;
+    struct tcb ** indirect = &sp->q;
 
     temp = sp->q;
 
@@ -239,7 +244,7 @@ int addToSemQueue( struct tcb * thread){
     }
 
     new = (struct tcb *)malloc(sizeof(struct tcb));
-    new->thread = thread;
+    new = thread;
 
     *indirect = new;
 }
@@ -249,16 +254,13 @@ int addToSemQueue( struct tcb * thread){
  * 
  * @param sp the tread the does the V opperation
  */
-void sem_signal(struct sem_t *sp){
+void sem_signal(struct sem_t * sp){
 	sp->count ++;
 	if(sp->q != NULL){
-		ucontext_t * tmpRun = running->thread_context;
-		ucontext_t * tmpReady = head->thread->thread_context; 
-		addToReady(sp->q->thread);
-		addToRunning(head);
-		sp->q = NULL;
-		swapcontext(tmpRun, tmpReady);
-
+			struct tcb * tmp = sp->q;
+			addToReady(tmp);
+			
+			sp->q = sp->q->next;
 	}
 }
 

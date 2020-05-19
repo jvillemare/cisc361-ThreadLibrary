@@ -51,7 +51,16 @@ test10.o: test10.c ud_thread.h Makefile
 
 test10: test10.o t_lib.a Makefile
 	${CC} ${CFLAGS} test10.o t_lib.a -o test10
+
+
+phill.o:  philosopher.c ud_thread.h Makefile
+	${CC} ${CFLAGS} -c  philosopher.c
+
+phill:  philosopher.o t_lib.a Makefile
+	${CC} ${CFLAGS}  philosopher.o t_lib.a -o phill
+
+	
 	
 
 clean:
-	rm -f t_lib.a ${EXECS} ${LIBOBJS} ${TSTOBJS} test01x test01x.o test01 test01.o
+	rm -f t_lib.a ${EXECS} ${LIBOBJS} ${TSTOBJS} test01x test01x.o test01 test01.o test10 test10.o

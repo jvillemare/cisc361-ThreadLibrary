@@ -28,6 +28,9 @@ int main(void)
    t_create(function, 2, 1);
    printf("This is main(2)...\n");
    t_create(function, 3, 1);
+  
+
+
 
    for (i = 0; i < 4; i++) {
       printf("This is main(3)[%d]...\n", i);

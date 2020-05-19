@@ -25,7 +25,6 @@ void assign(int pri)
 
 int main(int argc, char **argv) 
 {
-  printf("doign nothing \n");
   t_init();
   sem_init(&s, 5);
   
@@ -35,7 +34,6 @@ int main(int argc, char **argv)
   t_create(assign, 1, 1);
 
   printf("in main(): 0\n");
-
   t_yield();
 
   printf("in main(): 1\n");

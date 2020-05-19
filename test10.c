@@ -57,8 +57,7 @@ int main(void)
    sem_signal(mutex);
 
    printf("main thread gives up CPU...\n");
-   t_yield();
-   t_yield();
+  
 
    printf("in main: sem_destroy() and t_shutdown()\n");
    sem_destroy(&mutex);
